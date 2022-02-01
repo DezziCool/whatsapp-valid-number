@@ -1,0 +1,8 @@
+/db/*
+/app/*
+!/app/package.json
+!/app/app.js
+!/app/arrayOperators.json
+!/app/modules*
+/app/modules/db_connect/.env
+/docker-compose.yaml

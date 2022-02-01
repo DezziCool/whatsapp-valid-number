@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "nodemon": "^2.0.15",
+    "pg": "^8.7.1",
+    "venom-bot": "4.0.3"
+  }
+}
