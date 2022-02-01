@@ -1,4 +1,6 @@
 const { Pool } = require('pg')
+const dotenv = require('dotenv')
+dotenv.config();
 
 const pool = new Pool({
 	database: process.env.DB_MAILER_NAME,
