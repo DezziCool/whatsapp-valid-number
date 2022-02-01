@@ -1,3 +1,8 @@
+/*  Основной файл, в котором происходит процесс проверки валидирования номеров в Whatsapp
+
+
+*/
+
 const fs = require('fs');
 const { createSessions } = require('./modules/venomConnect.js')
 const { updateOpers } = require('./modules/updateOpers.js')
@@ -6,7 +11,7 @@ const { updateOpers } = require('./modules/updateOpers.js')
 const arrayOperators = JSON.parse(fs.readFileSync('arrayOperators.json', 'utf-8'));
 const backupFile = 'backupNextSearchNumber.txt'
 const sleepTime = 1000 * 60 * 5;
-let startNumber = '+79000000000';
+let startNumber = '+79000000000'; // используется в случаи если файл бекапа не был найден
 
 if (fs.existsSync(backupFile)) {
 	if (fs.readFileSync(backupFile, 'utf-8')) {
@@ -15,9 +20,11 @@ if (fs.existsSync(backupFile)) {
 }
 let	arraySearchNumber, counterGenNumber = 0, counterValidNumber = 0;
 
+// инициализация сессий 
 createSessions(getProxy=false)
 .then((sessions) => {
 	console.log(`\n\t=== Вхождение сессий - ${sessions.length} ===`);
+	// запуск основной функции
 	main(sessions, opers=arrayOperators, startNumber, searchInterval=5000)})
 .catch((res) => console.log(res));
 
@@ -40,8 +47,10 @@ async function waiting(region, oper, num) {
 	await sleep(sleepTime); 
 }
 
-//Проверяем с помощью venom зарегистрирован ли номер
+//Проверяем с помощью Venom зарегистрирован ли номер
 async function checkNumber(session, region, oper, num) {
+	// если вызов гет-запроса выдал положительный ответ - записываем номер в массив
+	// если выдал ошибку при гет-запросе - ничего не делает
 	try {
 		let res = await session.checkNumberStatus(`${region}${oper}${num}@c.us`);
 		arraySearchNumber[oper].push(num);
@@ -49,6 +58,7 @@ async function checkNumber(session, region, oper, num) {
 
 	} finally { counterValidNumber++; }
 }
+
 // ожидаем, пока счетчик пройденных номеров не совпадет с счетчиком проверенных номеров
 async function checkCounters(time=100) {
 	await new Promise((resolve) => {
@@ -72,12 +82,14 @@ async function checkCounters(time=100) {
 	})
 }
 
+// функия для ухода в сон
 async function sleep(time=15000) {
 	await new Promise((resolve) => {
 		setTimeout(() => { resolve('') }, time);
 	});
 }
 
+// запись последнего проверенного номера в backup-файл
 function backupNextSearchNumber(region, oper, num) {
 	if (num != '9999999') {
 		num = String(Number(num) + 1)
@@ -88,11 +100,11 @@ function backupNextSearchNumber(region, oper, num) {
 	fs.writeFile(backupFile, lastNumber, () =>{})
 }
 
+
 async function main(arraySession, opers=true, inputValue=false, searchInterval=5000, countLength=false) {
 	let region = '7', oper = '900', startNumSearch = '0000000', lastNumber=10000000;
 
 	if (inputValue) {
-		// console.log(' - Восстановление с бекапа - ');
 		const regexp = /\S+(\d{3})(\d{7})/g;
 		let res = regexp.exec(inputValue);
 		[, oper, startNumSearch] = res;
@@ -106,7 +118,6 @@ async function main(arraySession, opers=true, inputValue=false, searchInterval=5
 	if (countLength) {
 		lastNumber = Number(startNumSearch) + countLength;
 	}
-	
 	
 	for (let index = indexOper; index < opers.length; index++) {
 		
