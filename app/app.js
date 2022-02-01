@@ -1,7 +1,4 @@
-/*  Основной файл, в котором происходит процесс проверки валидирования номеров в Whatsapp
-
-
-*/
+// Основной файл, в котором происходит процесс проверки валидирования номеров в Whatsapp
 
 const fs = require('fs');
 const { createSessions } = require('./modules/venomConnect.js')
